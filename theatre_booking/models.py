@@ -32,11 +32,11 @@ class TheatreHall(models.Model):
     seats_in_row = models.IntegerField()
 
     @property
-    def hall_capacity(self):
+    def capacity(self):
         return self.rows * self.seats_in_row
 
     def __str__(self):
-        return f"{self.name} with {self.hall_capacity} capacity"
+        return f"{self.name} with {self.capacity} capacity"
 
 
 class Play(models.Model):
@@ -61,7 +61,7 @@ class Performance(models.Model):
 class Ticket(models.Model):
     row = models.PositiveIntegerField()
     seat = models.PositiveIntegerField()
-    performance = models.ForeignKey(Performance, on_delete=models.SET_NULL, null=True)
+    performance = models.ForeignKey(Performance, on_delete=models.SET_NULL, null=True, related_name="tickets")
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
 
     class Meta:
@@ -73,7 +73,7 @@ class Ticket(models.Model):
                     and 1 <= self.seat <= self.performance.theatre_hall.seats_in_row):
                 raise ValidationError({
                     "seat": f"Seat must be between 1 and {self.performance.theatre_hall.seats_in_row}",
-                    "row": f"Seat must be between 1 and {self.performance.theatre_hall.rows}",
+                    "row": f"Row must be between 1 and {self.performance.theatre_hall.rows}",
 
                 })
         else:

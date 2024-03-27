@@ -1,5 +1,3 @@
-from django.contrib.auth.models import User
-from django.db import transaction
 from rest_framework import serializers
 
 from theatre_booking.models import (
@@ -28,7 +26,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Reservation
         fields = ("id", "created_at", "user")
@@ -70,3 +67,20 @@ class TicketSerializer(serializers.ModelSerializer):
         model = Ticket
         fields = ("id", "row", "seat", "performance", "reservation")
         read_only_fields = ("id", "reservation")
+
+
+class PerformanceDetailSerializer(PerformanceSerializer):
+    theatre_hall = TheatreHallSerializer(many=False, read_only=True)
+    available_seats = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_available_seats(obj):
+        sold_tickets_count = Ticket.objects.filter(performance=obj).count()
+        total_seats = obj.theatre_hall.capacity
+        available_seats = total_seats - sold_tickets_count
+
+        return available_seats if available_seats else "Sold out!"
+
+    class Meta:
+        model = Performance
+        fields = ("id", "play", "theatre_hall", "showtime", "available_seats")
