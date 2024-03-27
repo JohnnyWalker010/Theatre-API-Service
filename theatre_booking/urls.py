@@ -14,7 +14,7 @@ from theatre_booking.views import (
 router = routers.DefaultRouter()
 router.register("actors", ActorViewSet)
 router.register("genres", GenreViewSet)
-router.register("theatre_halls", TheatreHallViewSet)
+router.register("theatre-halls", TheatreHallViewSet)
 router.register("plays", PlayViewSet)
 router.register("performances", PerformanceViewSet)
 router.register("reservations", ReservationViewSet)
