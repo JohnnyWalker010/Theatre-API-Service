@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+from django.db import transaction
 from rest_framework import serializers
 
 from theatre_booking.models import (
@@ -12,7 +14,6 @@ from theatre_booking.models import (
 
 
 class ActorSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Actor
         fields = ("id", "first_name", "last_name")
@@ -20,7 +21,6 @@ class ActorSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Genre
         fields = ("id", "name")
@@ -36,7 +36,6 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class TheatreHallSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TheatreHall
         fields = ("id", "name", "rows", "seats_in_row")
@@ -44,24 +43,30 @@ class TheatreHallSerializer(serializers.ModelSerializer):
 
 
 class PlaySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Play
         fields = ("id", "title", "description", "actors", "genres")
         read_only_fields = ("id",)
 
 
-class PerformanceSerializer(serializers.ModelSerializer):
+class PlayListSerializer(PlaySerializer):
+    actors = ActorSerializer(many=True, read_only=True)
+    genres = GenreSerializer(many=True, read_only=True)
 
+
+class PerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
         fields = ("id", "play", "theatre_hall", "showtime")
         read_only_fields = ("id",)
 
 
-class TicketSerializer(serializers.ModelSerializer):
+class PerformanceListSerializer(PerformanceSerializer):
+    play = PlaySerializer(many=False, read_only=True)
 
+
+class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "performance", "reservation")
-        read_only_fields = ("id",)
+        read_only_fields = ("id", "reservation")
