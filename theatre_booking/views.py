@@ -1,9 +1,24 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from theatre_service.theatre_booking.models import Actor, Genre, Reservation, TheatreHall, Play, Performance, Ticket
-from theatre_service.theatre_booking.serializers import ActorSerializer, GenreSerializer, ReservationSerializer, \
-    TheatreHallSerializer, PlaySerializer, PerformanceSerializer, TicketSerializer
+from theatre_booking.models import (
+    Actor,
+    Genre,
+    Reservation,
+    TheatreHall,
+    Play,
+    Performance,
+    Ticket,
+)
+from theatre_booking.serializers import (
+    ActorSerializer,
+    GenreSerializer,
+    ReservationSerializer,
+    TheatreHallSerializer,
+    PlaySerializer,
+    PerformanceSerializer,
+    TicketSerializer,
+)
 
 
 class ActorViewSet(viewsets.ModelViewSet):

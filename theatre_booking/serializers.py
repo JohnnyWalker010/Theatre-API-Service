@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from theatre_service.theatre_booking.models import Actor, Genre, Reservation, TheatreHall, Performance, Ticket
+from theatre_booking.models import Actor, Genre, Reservation, TheatreHall, Performance, Ticket
 
 
 class ActorSerializer(serializers.ModelSerializer):

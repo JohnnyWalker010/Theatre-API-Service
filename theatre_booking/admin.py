@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from theatre_service.theatre_booking.models import (
+from theatre_booking.models import (
     Actor,
     Genre,
     Reservation,
