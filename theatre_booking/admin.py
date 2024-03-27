@@ -7,7 +7,7 @@ from theatre_booking.models import (
     TheatreHall,
     Play,
     Performance,
-    Ticket
+    Ticket,
 )
 
 

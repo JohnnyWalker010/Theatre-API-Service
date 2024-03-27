@@ -16,7 +16,10 @@ from theatre_booking.serializers import (
     TheatreHallSerializer,
     PlaySerializer,
     PerformanceSerializer,
-    TicketSerializer, PlayListSerializer, PerformanceListSerializer, PerformanceDetailSerializer,
+    TicketSerializer,
+    PlayListSerializer,
+    PerformanceListSerializer,
+    PerformanceDetailSerializer,
 )
 
 
@@ -69,7 +72,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        if self.action == 'list':
+        if self.action == "list":
             queryset = queryset.select_related("play")
         return queryset
 
@@ -83,7 +86,9 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
-        current_reservation = Reservation.objects.filter(user=user, status="active").first()
+        current_reservation = Reservation.objects.filter(
+            user=user, status="active"
+        ).first()
         if current_reservation:
             serializer.save(reservation=current_reservation)
         else:

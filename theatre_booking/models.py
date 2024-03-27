@@ -61,7 +61,9 @@ class Performance(models.Model):
 class Ticket(models.Model):
     row = models.PositiveIntegerField()
     seat = models.PositiveIntegerField()
-    performance = models.ForeignKey(Performance, on_delete=models.SET_NULL, null=True, related_name="tickets")
+    performance = models.ForeignKey(
+        Performance, on_delete=models.SET_NULL, null=True, related_name="tickets"
+    )
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
 
     class Meta:
@@ -69,20 +71,31 @@ class Ticket(models.Model):
 
     def clean(self):
         if self.performance:
-            if not (1 <= self.row <= self.performance.theatre_hall.rows
-                    and 1 <= self.seat <= self.performance.theatre_hall.seats_in_row):
-                raise ValidationError({
-                    "seat": f"Seat must be between 1 and {self.performance.theatre_hall.seats_in_row}",
-                    "row": f"Row must be between 1 and {self.performance.theatre_hall.rows}",
-
-                })
+            if not (
+                1 <= self.row <= self.performance.theatre_hall.rows
+                and 1 <= self.seat <= self.performance.theatre_hall.seats_in_row
+            ):
+                raise ValidationError(
+                    {
+                        "seat": f"Seat must be between 1 and {self.performance.theatre_hall.seats_in_row}",
+                        "row": f"Row must be between 1 and {self.performance.theatre_hall.rows}",
+                    }
+                )
         else:
             raise ValidationError("Ticket must be associated with a performance")
 
     def __str__(self):
-        performance_title = self.performance.play.title if self.performance else "Unknown"
-        customer_name = self.reservation.user.username if (self.reservation and self.reservation.user) else "Unknown"
-        reservation_time = self.reservation.created_at if self.reservation else "Unknown"
+        performance_title = (
+            self.performance.play.title if self.performance else "Unknown"
+        )
+        customer_name = (
+            self.reservation.user.username
+            if (self.reservation and self.reservation.user)
+            else "Unknown"
+        )
+        reservation_time = (
+            self.reservation.created_at if self.reservation else "Unknown"
+        )
         return (
             f"Ticket {self.id}, "
             f"Performance: {performance_title}, "
