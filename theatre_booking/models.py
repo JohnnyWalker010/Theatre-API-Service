@@ -13,7 +13,7 @@ class Genre(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
 class TheatreHall(models.Model):
@@ -30,7 +30,7 @@ class Play(models.Model):
 
 
 class Performance(models.Model):
-    play = models.ForeignKey(Play, on_delete=models.SET_NULL,null=True)
+    play = models.ForeignKey(Play, on_delete=models.SET_NULL, null=True)
     theatre_hall = models.ManyToManyField(TheatreHall)
     showtime = models.DateTimeField()
 
@@ -38,5 +38,8 @@ class Performance(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    performance = models.ForeignKey(Performance, on_delete=models.SET_NULL,null=True)
+    performance = models.ForeignKey(Performance, on_delete=models.SET_NULL, null=True)
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+
+    def get_seat_number(self):
+        return f"{self.seat}-{self.row}"
