@@ -1,9 +1,10 @@
-from django.utils import timezone
-
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase, Client
-from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
+from rest_framework.test import APITestCase, APIRequestFactory
+
 from theatre_booking.models import (
     Actor,
     Genre,
@@ -12,6 +13,20 @@ from theatre_booking.models import (
     Play,
     Performance,
     Ticket,
+)
+from .serializers import (
+    GenreSerializer,
+    ActorSerializer,
+    ReservationSerializer,
+    PerformanceSerializer,
+    TheatreHallSerializer,
+)
+from .views import (
+    ActorViewSet,
+    GenreViewSet,
+    TheatreHallViewSet,
+    PlayViewSet,
+    TicketViewSet,
 )
 
 
@@ -174,3 +189,105 @@ class ModelsTestCase(TestCase):
             row=5, seat=10, reservation=self.reservation
         )
         self.assertRaises(ValidationError, ticket_without_performance.clean)
+
+
+class ViewsTestCase(APITestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword"
+        )
+        self.actor1 = Actor.objects.create(first_name="John", last_name="Doe")
+        self.genre1 = Genre.objects.create(name="Drama")
+        self.theatre_hall1 = TheatreHall.objects.create(
+            name="Main Hall", rows=10, seats_in_row=15
+        )
+        self.play1 = Play.objects.create(
+            title="Romeo and Juliet", description="A tragic love story"
+        )
+        self.performance1 = Performance.objects.create(
+            play=self.play1,
+            theatre_hall=self.theatre_hall1,
+            showtime="2024-03-28 14:00:00",
+        )
+        self.reservation1 = Reservation.objects.create(user=self.user)
+        self.ticket1 = Ticket.objects.create(
+            row=5, seat=10, performance=self.performance1, reservation=self.reservation1
+        )
+
+    def test_actor_list(self):
+        view = ActorViewSet.as_view({"get": "list"})
+        request = self.factory.get(reverse("theatre_service:actor-list"))
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_genre_list(self):
+        view = GenreViewSet.as_view({"get": "list"})
+        request = self.factory.get(reverse("theatre_service:genre-list"))
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_theatre_hall_retrieve(self):
+        view = TheatreHallViewSet.as_view({"get": "retrieve"})
+        request = self.factory.get(
+            reverse("theatre_service:theatrehall-detail", args=[self.theatre_hall1.id])
+        )
+        response = view(request, pk=self.theatre_hall1.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_play_list(self):
+        view = PlayViewSet.as_view({"get": "list"})
+        request = self.factory.get(reverse("theatre_service:play-list"))
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_ticket_list(self):
+        view = TicketViewSet.as_view({"get": "list"})
+        request = self.factory.get(reverse("theatre_service:ticket-list"))
+        request.user = self.user
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestActorSerializer(TestCase):
+    def test_actor_serializer_valid(self):
+        data = {"first_name": "John", "last_name": "Doe"}
+        serializer = ActorSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class TestGenreSerializer(TestCase):
+    def test_genre_serializer_valid(self):
+        data = {"name": "Drama"}
+        serializer = GenreSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class TestReservationSerializer(TestCase):
+    def test_reservation_serializer_valid(self):
+        user = User.objects.create(username="testuser")
+        data = {"user": user.id}
+        serializer = ReservationSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class TestTheatreHallSerializer(TestCase):
+    def test_theatre_hall_serializer_valid(self):
+        data = {"name": "Main Hall", "rows": 10, "seats_in_row": 15}
+        serializer = TheatreHallSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+
+class TestPerformanceSerializer(TestCase):
+    def test_performance_serializer_valid(self):
+        play = Play.objects.create(title="Hamlet", description="Tragedy")
+        theatre_hall = TheatreHall.objects.create(
+            name="Main Hall", rows=10, seats_in_row=15
+        )
+        data = {
+            "play": play.id,
+            "theatre_hall": theatre_hall.id,
+            "showtime": "2024-03-28 14:00:00",
+        }
+        serializer = PerformanceSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
