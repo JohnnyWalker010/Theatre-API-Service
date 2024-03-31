@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase, APIRequestFactory, force_authenticate
 
 from theatre_booking.models import (
     Actor,
@@ -244,7 +244,7 @@ class ViewsTestCase(APITestCase):
     def test_ticket_list(self):
         view = TicketViewSet.as_view({"get": "list"})
         request = self.factory.get(reverse("theatre_service:ticket-list"))
-        request.user = self.user
+        force_authenticate(request, user=self.user)
         response = view(request)
         self.assertEqual(response.status_code, 200)
 
