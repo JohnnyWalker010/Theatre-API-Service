@@ -12,6 +12,7 @@ from theatre_booking.models import (
 
 
 class ActorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Actor
         fields = ("id", "first_name", "last_name")
@@ -19,6 +20,7 @@ class ActorSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Genre
         fields = ("id", "name")
@@ -26,6 +28,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Reservation
         fields = ("id", "created_at", "user")
@@ -33,6 +36,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class TheatreHallSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = TheatreHall
         fields = ("id", "name", "rows", "seats_in_row")
@@ -40,6 +44,7 @@ class TheatreHallSerializer(serializers.ModelSerializer):
 
 
 class PlaySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Play
         fields = ("id", "title", "description", "actors", "genres")
@@ -47,11 +52,13 @@ class PlaySerializer(serializers.ModelSerializer):
 
 
 class PlayListSerializer(PlaySerializer):
+
     actors = ActorSerializer(many=True, read_only=True)
     genres = GenreSerializer(many=True, read_only=True)
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Performance
         fields = ("id", "play", "theatre_hall", "showtime")
@@ -59,10 +66,12 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
 
 class PerformanceListSerializer(PerformanceSerializer):
+
     play = PlaySerializer(many=False, read_only=True)
 
 
 class TicketSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "performance", "reservation")
@@ -70,6 +79,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class PerformanceDetailSerializer(PerformanceSerializer):
+
     theatre_hall = TheatreHallSerializer(many=False, read_only=True)
     available_seats = serializers.SerializerMethodField()
 
