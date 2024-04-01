@@ -67,7 +67,7 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
 class PerformanceListSerializer(PerformanceSerializer):
 
-    play = PlaySerializer(many=False, read_only=True)
+    play = PlaySerializer(read_only=True)
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -80,7 +80,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 class PerformanceDetailSerializer(PerformanceSerializer):
 
-    theatre_hall = TheatreHallSerializer(many=False, read_only=True)
+    theatre_hall = TheatreHallSerializer(read_only=True)
     available_seats = serializers.SerializerMethodField()
 
     @staticmethod
