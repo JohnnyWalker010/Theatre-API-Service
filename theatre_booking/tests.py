@@ -1,9 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APITestCase, APIRequestFactory, force_authenticate
+from rest_framework_simplejwt.tokens import AccessToken
 
 from theatre_booking.models import (
     Actor,
@@ -194,7 +196,7 @@ class ModelsTestCase(TestCase):
 class ViewsTestCase(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username="testuser", password="testpassword"
         )
         self.actor1 = Actor.objects.create(first_name="John", last_name="Doe")
@@ -214,16 +216,19 @@ class ViewsTestCase(APITestCase):
         self.ticket1 = Ticket.objects.create(
             row=5, seat=10, performance=self.performance1, reservation=self.reservation1
         )
+        self.access_token = AccessToken.for_user(self.user)
 
     def test_actor_list(self):
         view = ActorViewSet.as_view({"get": "list"})
         request = self.factory.get(reverse("theatre_service:actor-list"))
+        force_authenticate(request, user=self.user)
         response = view(request)
         self.assertEqual(response.status_code, 200)
 
     def test_genre_list(self):
         view = GenreViewSet.as_view({"get": "list"})
         request = self.factory.get(reverse("theatre_service:genre-list"))
+        force_authenticate(request, user=self.user)
         response = view(request)
         self.assertEqual(response.status_code, 200)
 
@@ -232,12 +237,14 @@ class ViewsTestCase(APITestCase):
         request = self.factory.get(
             reverse("theatre_service:theatrehall-detail", args=[self.theatre_hall1.id])
         )
+        force_authenticate(request, user=self.user)
         response = view(request, pk=self.theatre_hall1.id)
         self.assertEqual(response.status_code, 200)
 
     def test_play_list(self):
         view = PlayViewSet.as_view({"get": "list"})
         request = self.factory.get(reverse("theatre_service:play-list"))
+        force_authenticate(request, user=self.user)
         response = view(request)
         self.assertEqual(response.status_code, 200)
 
