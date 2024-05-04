@@ -26,17 +26,17 @@ from drf_spectacular.views import (
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
-        "api/theatre-booking",
+        "api/theatre-bookings/",
         include("theatre_booking.urls", namespace="theatre_booking"),
     ),
-    path("api/user/", include("user.urls", namespace="user")),
-    path("api/doc/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/users/", include("user.urls", namespace="user")),
+    path("api/docs/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/doc/swagger/",
+        "api/docs/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
     path(
-        "api/doc/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
+        "api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),
 ]
