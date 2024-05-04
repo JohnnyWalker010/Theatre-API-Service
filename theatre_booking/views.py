@@ -90,7 +90,7 @@ class PlayViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return PlayListSerializer
-        return PlaySerializer
+        return self.serializer_class
 
     def get_queryset(self):
         queryset = self.queryset
@@ -108,7 +108,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
             return PerformanceListSerializer
         if self.action == "retrieve":
             return PerformanceDetailSerializer
-        return PerformanceSerializer
+        return self.serializer_class
 
     def get_queryset(self):
         queryset = self.queryset
