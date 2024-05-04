@@ -1,14 +1,21 @@
+from sqlite3 import IntegrityError
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import UniqueConstraint
 
 
 class Actor(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
-    def __str__(self):
+    @property
+    def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def __str__(self):
+        return self.full_name
 
 
 class Genre(models.Model):
@@ -67,7 +74,12 @@ class Ticket(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ("row", "seat", "performance")
+        constraints = [
+            UniqueConstraint(
+                fields=["row", "seat", "performance"],
+                name="unique_ticket_for_performance"
+            )
+        ]
 
     def clean(self):
         if self.performance:
@@ -83,6 +95,12 @@ class Ticket(models.Model):
                 )
         else:
             raise ValidationError("Ticket must be associated with a performance")
+
+    def save(self, *args, **kwargs):
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError:
+            raise ValidationError("Ticket is already sold")
 
     def __str__(self):
         performance_title = (

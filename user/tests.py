@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
-from rest_framework import status
+from django.contrib.auth.models import User
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class AuthenticationTests(APITestCase):
@@ -22,6 +24,12 @@ class AuthenticationTests(APITestCase):
 
 
 class RegistrationTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword"
+        )
+        self.token = str(RefreshToken.for_user(self.user).access_token)
+
     def test_user_registration(self):
         url = reverse("user:create")
         data = {
@@ -29,7 +37,8 @@ class RegistrationTests(APITestCase):
             "email": "new_user@example.com",
             "password": "new_password",
         }
-        response = self.client.post(url, data, format="json")
+        headers = {"Authorization": f"Bearer {self.token}"}
+        response = self.client.post(url, data, format="json", headers=headers)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
